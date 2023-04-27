@@ -7,6 +7,7 @@ The latest downloads can be found on our SpigotMC page [here]().
 
 Check out our [features](https://github.com/WhipDevelopment/CrashClaim/wiki/Features) or [commands](https://github.com/WhipDevelopment/CrashClaim/wiki/Commands).
 
+TEST !!!!
 
 ## Setup
 Download or build the latest compatible version for your server.
