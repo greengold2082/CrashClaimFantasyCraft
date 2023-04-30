@@ -12,6 +12,7 @@ import net.crashcraft.crashclaim.menus.list.SubClaimListMenu;
 import net.crashcraft.crashclaim.menus.permissions.SimplePermissionMenu;
 import net.crashcraft.crashclaim.permissions.PermissionHelper;
 import net.crashcraft.crashclaim.permissions.PermissionRoute;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.wesjd.anvilgui.AnvilGUI;
 import org.bukkit.Bukkit;
@@ -79,9 +80,12 @@ public class ClaimMenu extends GUI {
         }
 
         if (helper.hasPermission(claim, getPlayer().getUniqueId(), PermissionRoute.MODIFY_CLAIM)) {
-            inv.setItem(32, Localization.MENU__PERMISSIONS__BUTTONS__RENAME.getItem(player));
-            inv.setItem(33, Localization.MENU__PERMISSIONS__BUTTONS__EDIT_ENTRY.getItem(player));
-            inv.setItem(34, Localization.MENU__PERMISSIONS__BUTTONS__EDIT_EXIT.getItem(player));
+            inv.setItem(32, Localization.MENU__PERMISSIONS__BUTTONS__RENAME.getItem(player,
+                    "name", (claim.getName() != null) ? claim.getName() : ""));
+            inv.setItem(33, Localization.MENU__PERMISSIONS__BUTTONS__EDIT_ENTRY.getItem(player,
+                    "entry_message", (claim.getEntryMessage() != null) ? claim.getEntryMessage() : ""));
+            inv.setItem(34, Localization.MENU__PERMISSIONS__BUTTONS__EDIT_EXIT.getItem(player,
+                    "exit_message", (claim.getExitMessage() != null) ? claim.getExitMessage() : ""));
             inv.setItem(49, Localization.MENU__PERMISSIONS__BUTTONS__DELETE.getItem(player));
         } else {
             inv.setItem(32, Localization.MENU__PERMISSIONS__BUTTONS__RENAME_DISABLED.getItem(player));
@@ -141,11 +145,15 @@ public class ClaimMenu extends GUI {
                 if (helper.hasPermission(claim, getPlayer().getUniqueId(), PermissionRoute.MODIFY_CLAIM)) {
                     new AnvilGUI.Builder()
                             .plugin(CrashClaim.getPlugin())
-                            .itemLeft(Localization.MENU__CLAIM__RENAME__MESSAGE.getItem(player))
+                            .itemLeft(Localization.createItemStack(Material.PAPER, 1, claim.getName()))
                             .onComplete(((player, reply) -> {
-                                claim.setName(reply);
-                                player.spigot().sendMessage(Localization.MENU__CLAIM__RENAME__CONFIRMATION.getMessage(player,
-                                        "name", reply));
+                                if (MiniMessage.miniMessage().stripTags(reply).trim().length() > 0) {
+                                    claim.setName(reply);
+                                    player.spigot().sendMessage(Localization.MENU__CLAIM__RENAME__CONFIRMATION.getMessage(player,
+                                            "name", reply));
+                                } else {
+                                    player.spigot().sendMessage(Localization.MENU__CLAIM__RENAME__ERROR__EMPTY.getMessage(player));
+                                }
                                 return AnvilGUI.Response.close();
                             }))
                             .open(getPlayer());
@@ -156,9 +164,13 @@ public class ClaimMenu extends GUI {
                 break;
             case 33:
                 if (helper.hasPermission(claim, getPlayer().getUniqueId(), PermissionRoute.MODIFY_CLAIM)) {
+                    ItemStack item = claim.getEntryMessage() != null ?
+                            Localization.createItemStack(Material.PAPER, 1, claim.getEntryMessage()) :
+                            Localization.MENU__CLAIM__ENTRY_MESSAGE__MESSAGE.getItem(player);
+
                     new AnvilGUI.Builder()
                             .plugin(CrashClaim.getPlugin())
-                            .itemLeft(Localization.MENU__CLAIM__ENTRY_MESSAGE__MESSAGE.getItem(player))
+                            .itemLeft(item)
                             .onComplete(((player, reply) -> {
                                 claim.setEntryMessage(reply);
                                 player.spigot().sendMessage(Localization.MENU__CLAIM__ENTRY_MESSAGE__CONFIRMATION.getMessage(player,
@@ -173,9 +185,13 @@ public class ClaimMenu extends GUI {
                 break;
             case 34:
                 if (helper.hasPermission(claim, getPlayer().getUniqueId(), PermissionRoute.MODIFY_CLAIM)) {
+                    ItemStack item = claim.getExitMessage() != null ?
+                            Localization.createItemStack(Material.PAPER, 1, claim.getExitMessage()) :
+                            Localization.MENU__CLAIM__EXIT_MESSAGE__MESSAGE.getItem(player);
+
                     new AnvilGUI.Builder()
                             .plugin(CrashClaim.getPlugin())
-                            .itemLeft(Localization.MENU__CLAIM__EXIT_MESSAGE__MESSAGE.getItem(player))
+                            .itemLeft(item)
                             .onComplete(((player, reply) -> {
                                 claim.setExitMessage(reply);
                                 player.spigot().sendMessage(Localization.MENU__CLAIM__EXIT_MESSAGE__CONFIRMATION.getMessage(player,

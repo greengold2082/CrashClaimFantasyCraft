@@ -267,6 +267,7 @@ public enum Localization {
 
     MENU__CLAIM__RENAME__MESSAGE(Material.PAPER, 1, "Enter new claim name"),
     MENU__CLAIM__RENAME__CONFIRMATION("<green>Change claim name to <gold><name>"),
+    MENU__CLAIM__RENAME__ERROR__EMPTY("<red>You must enter a non empty name"),
 
     MENU__CLAIM__ENTRY_MESSAGE__MESSAGE(Material.PAPER, 1, "Enter new claim entry message"),
     MENU__CLAIM__ENTRY_MESSAGE__CONFIRMATION("<green>Change claim entry message to <gold><entry_message>"),
@@ -291,21 +292,24 @@ public enum Localization {
 
     MENU__PERMISSIONS__BUTTONS__RENAME(Material.ANVIL, 1,
             "<gold>Rename Claim",
-            "<green>Rename your claim to easily identify it"),
+            "<green>Rename your claim to easily identify it",
+            "<name>" ),
     MENU__PERMISSIONS__BUTTONS__RENAME_DISABLED(Material.ANVIL, 1,
             "<gray>Rename Claim",
             "<dark_gray>Rename your claim to easily identify it"),
 
     MENU__PERMISSIONS__BUTTONS__EDIT_ENTRY(Material.ANVIL, 1,
             "<gold>Edit Entry Message",
-            "<green>Edit the entry message of your claim"),
+            "<green>Edit the entry message of your claim",
+            "<entry_message>" ),
     MENU__PERMISSIONS__BUTTONS__EDIT_ENTRY_DISABLED(Material.ANVIL, 1,
             "<gray>Edit Entry Message",
             "<dark_gray>Edit the entry message of your claim"),
 
     MENU__PERMISSIONS__BUTTONS__EDIT_EXIT(Material.ANVIL, 1,
             "<gold>Edit Exit Message",
-            "<green>Edit the exit message of your claim"),
+            "<green>Edit the exit message of your claim",
+            "<exit_message>"),
     MENU__PERMISSIONS__BUTTONS__EDIT_EXIT_DISABLED(Material.ANVIL, 1,
             "<gray>Edit Exit Message",
             "<dark_gray>Edit the exit message of your claim"),
@@ -486,6 +490,14 @@ public enum Localization {
             item.setItemMeta(meta);
             return item;
         }
+    }
+
+    public static ItemStack createItemStack(Material material, int amount, String title){
+        ItemStack customItemStack = new ItemStack(material, amount);
+        ItemMeta itemMeta = customItemStack.getItemMeta();
+        itemMeta.setDisplayName(title);
+        customItemStack.setItemMeta(itemMeta);
+        return customItemStack;
     }
 
     public static BaseComponent[] parseRawUserInput(String s){
