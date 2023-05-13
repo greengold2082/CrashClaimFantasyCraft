@@ -25,6 +25,11 @@ repositories {
         url = uri("https://repo.papermc.io/repository/maven-public/")
     }
 
+    maven {
+        name = "essentialsx-releases"
+        url = uri("https://repo.essentialsx.net/releases/")
+    }
+
     mavenCentral()
 }
 
@@ -61,6 +66,7 @@ dependencies {
     compileOnly( "me.clip:placeholderapi:2.10.10")
     compileOnly( "us.dynmap:dynmap-api:3.2-SNAPSHOT")
     compileOnly("net.luckperms:api:5.4")
+    compileOnly("net.essentialsx:EssentialsX:2.19.7")
 
     // Cache2k
     val cache2kVersion = "2.4.1.Final"

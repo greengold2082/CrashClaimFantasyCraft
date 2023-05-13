@@ -1,6 +1,8 @@
 package net.crashcraft.crashclaim.menus.list;
 
 import co.aikar.taskchain.TaskChain;
+import com.earth2me.essentials.Essentials;
+import com.earth2me.essentials.User;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import dev.whip.crashutils.menusystem.GUI;
@@ -21,11 +23,13 @@ import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 public class ClaimListMenu extends GUI {
     private final GUI previousMenu;
@@ -211,7 +215,15 @@ public class ClaimListMenu extends GUI {
             location = new Location(world, x, world.getHighestBlockYAt(x, z) + 1, z);
         }
 
-        PaperLib.teleportAsync(player, location);
+        // safe TP with Essentials
+        Essentials essentials = (Essentials) Bukkit.getPluginManager().getPlugin("Essentials");
+        if (essentials != null) {
+            User user = essentials.getUser(player);
+            final CompletableFuture<Boolean> future = new CompletableFuture<>();
+            user.getAsyncTeleport().now(location, false, PlayerTeleportEvent.TeleportCause.PLUGIN, future);
+        } else {
+            PaperLib.teleportAsync(player, location);
+        }
     }
 
     private ArrayList<Claim> getPageFromArray() {
