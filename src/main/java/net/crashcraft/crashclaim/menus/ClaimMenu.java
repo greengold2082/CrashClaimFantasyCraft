@@ -6,6 +6,7 @@ import net.crashcraft.crashclaim.CrashClaim;
 import net.crashcraft.crashclaim.claimobjects.Claim;
 import net.crashcraft.crashclaim.claimobjects.SubClaim;
 import net.crashcraft.crashclaim.config.GlobalConfig;
+import net.crashcraft.crashclaim.data.ClaimDataManager;
 import net.crashcraft.crashclaim.localization.Localization;
 import net.crashcraft.crashclaim.menus.list.PlayerPermListMenu;
 import net.crashcraft.crashclaim.menus.list.SubClaimListMenu;
@@ -16,6 +17,7 @@ import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.wesjd.anvilgui.AnvilGUI;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -86,11 +88,14 @@ public class ClaimMenu extends GUI {
                     "entry_message", (claim.getEntryMessage() != null) ? claim.getEntryMessage() : ""));
             inv.setItem(34, Localization.MENU__PERMISSIONS__BUTTONS__EDIT_EXIT.getItem(player,
                     "exit_message", (claim.getExitMessage() != null) ? claim.getExitMessage() : ""));
+            inv.setItem(35, Localization.MENU__PERMISSIONS__BUTTONS__TELEPORT_LOCATION.getItem(player,
+                    "coords", (claim.getTeleportLocation() != null) ? claim.getTeleportLocation() : ""));
             inv.setItem(49, Localization.MENU__PERMISSIONS__BUTTONS__DELETE.getItem(player));
         } else {
             inv.setItem(32, Localization.MENU__PERMISSIONS__BUTTONS__RENAME_DISABLED.getItem(player));
             inv.setItem(33, Localization.MENU__PERMISSIONS__BUTTONS__EDIT_ENTRY_DISABLED.getItem(player));
             inv.setItem(34, Localization.MENU__PERMISSIONS__BUTTONS__EDIT_EXIT_DISABLED.getItem(player));
+            inv.setItem(35, Localization.MENU__PERMISSIONS__BUTTONS__TELEPORT_LOCATION_DISABLED.getItem(player));
             inv.setItem(49, Localization.MENU__PERMISSIONS__BUTTONS__DELETE_DISABLED.getItem(player));
         }
 
@@ -203,6 +208,25 @@ public class ClaimMenu extends GUI {
                     player.spigot().sendMessage(Localization.MENU__GENERAL__INSUFFICIENT_PERMISSION.getMessage(player));
                     forceClose();
                 }
+                break;
+            case 35:
+                if (helper.hasPermission(claim, getPlayer().getUniqueId(), PermissionRoute.MODIFY_CLAIM)) {
+
+                    Location playerLocation = player.getLocation();
+                    ClaimDataManager manager = CrashClaim.getPlugin().getDataManager();
+                    Claim claimOwned = manager.getClaim(playerLocation.getBlockX(), playerLocation.getBlockZ(), playerLocation.getWorld().getUID());
+
+                    if (claimOwned != null && claimOwned.getId() == claim.getId()) {
+                        claim.setTeleportLocation(String.valueOf(getPlayer().getLocation().serialize()));
+                        player.spigot().sendMessage(Localization.MENU__CLAIM__MESSAGE__TELEPORT_LOCATION__SAVED.getMessage(player));
+                    } else {
+                        player.spigot().sendMessage(Localization.MENU__CLAIM__MESSAGE__TELEPORT_LOCATION__ERROR.getMessage(player));
+                    }
+
+                } else {
+                    player.spigot().sendMessage(Localization.MENU__GENERAL__INSUFFICIENT_PERMISSION.getMessage(player));
+                }
+                forceClose();
                 break;
             case 49:
                 if (helper.hasPermission(claim, getPlayer().getUniqueId(), PermissionRoute.MODIFY_CLAIM)) {

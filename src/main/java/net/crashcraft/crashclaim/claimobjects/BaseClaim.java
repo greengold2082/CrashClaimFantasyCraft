@@ -24,6 +24,10 @@ public abstract class BaseClaim {
     private String exitMessage;
     private BaseComponent[] parsedExitMessage; // Cached for efficiency
 
+    private String teleportLocation;
+
+    private String creationDate;
+
     private boolean isEditing = false;
     private boolean deleted = false;
 
@@ -86,6 +90,10 @@ public abstract class BaseClaim {
                 Localization.NEW_CLAIM__DEFAULT_CLAIM_NAME.getRawMessage().replace("<id>", Integer.toString(id)) : name;
     }
 
+    public String getTeleportLocation() { return this.teleportLocation; }
+
+    public String getCreationDate() { return this.creationDate; }
+
     public String getEntryMessage() {
         return entryMessage;
     }
@@ -108,6 +116,16 @@ public abstract class BaseClaim {
     public void setExitMessage(String exitMessage) {
         this.exitMessage = exitMessage;
         this.parsedExitMessage = exitMessage == null ? null :  Localization.parseRawUserInput(exitMessage);
+        setToSave(true);
+    }
+
+    public void setTeleportLocation(String teleportLocation) {
+        this.teleportLocation = teleportLocation;
+        setToSave(true);
+    }
+
+    public void setCreationDate(String creationDate) {
+        this.creationDate = creationDate;
         setToSave(true);
     }
 

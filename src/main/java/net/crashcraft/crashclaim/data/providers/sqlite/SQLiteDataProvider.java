@@ -222,7 +222,8 @@ public class SQLiteDataProvider implements DataProvider {
                     claim.getName(),
                     claim.getEntryMessage(),
                     claim.getExitMessage(),
-                    DataType.CLAIM
+                    DataType.CLAIM,
+                    claim.getTeleportLocation()
             );
 
             //Claim
@@ -258,7 +259,8 @@ public class SQLiteDataProvider implements DataProvider {
                         subClaim.getName(),
                         subClaim.getEntryMessage(),
                         subClaim.getExitMessage(),
-                        DataType.SUB_CLAIM
+                        DataType.SUB_CLAIM,
+                        claim.getTeleportLocation()
                 );
 
                 DB.executeUpdate("INSERT OR IGNORE INTO subclaims(id, data, claim_id) VALUES (?, " +
@@ -393,16 +395,16 @@ public class SQLiteDataProvider implements DataProvider {
         );
     }
 
-    private void addClaimData(int data_id, int minX, int minZ, int maxX, int maxZ, UUID world, String name, String entryMessage, String exitMessage, DataType type) throws SQLException{
+    private void addClaimData(int data_id, int minX, int minZ, int maxX, int maxZ, UUID world, String name, String entryMessage, String exitMessage, DataType type, String teleportLocation) throws SQLException{
         if (data_id == -1) {
-            DB.executeUpdate("INSERT INTO claim_data(minX, minZ, maxX, maxZ, world, name, entryMessage, exitMessage, `type`) VALUES (?, ?, ?, ?, (SELECT id FROM claimworlds WHERE uuid = ?), ?, ?, ?, ?)",
-                    minX, minZ, maxX, maxZ, world.toString(), name, entryMessage, exitMessage, type.getType()
+            DB.executeUpdate("INSERT INTO claim_data(minX, minZ, maxX, maxZ, world, name, entryMessage, exitMessage, `type`, teleportLocation) VALUES (?, ?, ?, ?, (SELECT id FROM claimworlds WHERE uuid = ?), ?, ?, ?, ?, ?)",
+                    minX, minZ, maxX, maxZ, world.toString(), name, entryMessage, exitMessage, type.getType(), teleportLocation
             );
         } else {
-            DB.executeUpdate("INSERT INTO claim_data(id, minX, minZ, maxX, maxZ, world, name, entryMessage, exitMessage, `type`) VALUES (?, ?, ?, ?, ?, (SELECT id FROM claimworlds WHERE uuid = ?), ?, ?, ?, ?)" +
-                            "ON CONFLICT(id) DO UPDATE SET minX = ?, minZ = ?, maxX = ?, maxZ = ?, world = (SELECT id FROM claimworlds WHERE uuid = ?), name = ?, entryMessage = ?, exitMessage = ?",
-                    data_id, minX, minZ, maxX, maxZ, world.toString(), name, entryMessage, exitMessage, type.getType(),
-                    minX, minZ, maxX, maxZ, world.toString(), name, entryMessage, exitMessage
+            DB.executeUpdate("INSERT INTO claim_data(id, minX, minZ, maxX, maxZ, world, name, entryMessage, exitMessage, `type`, teleportLocation) VALUES (?, ?, ?, ?, ?, (SELECT id FROM claimworlds WHERE uuid = ?), ?, ?, ?, ?, ?)" +
+                            "ON CONFLICT(id) DO UPDATE SET minX = ?, minZ = ?, maxX = ?, maxZ = ?, world = (SELECT id FROM claimworlds WHERE uuid = ?), name = ?, entryMessage = ?, exitMessage = ?, teleportLocation = ?",
+                    data_id, minX, minZ, maxX, maxZ, world.toString(), name, entryMessage, exitMessage, type.getType(), teleportLocation,
+                    minX, minZ, maxX, maxZ, world.toString(), name, entryMessage, exitMessage, teleportLocation
             );
         }
     }
@@ -430,6 +432,8 @@ public class SQLiteDataProvider implements DataProvider {
                             "    claim_data.name," +
                             "    claim_data.entryMessage," +
                             "    claim_data.exitMessage," +
+                            "    claim_data.teleportLocation," +
+                            "    claim_data.createdAt," +
                             "    players.uuid," +
                             "    claimworlds.uuid As world_uuid " +
                             "From " +
@@ -469,6 +473,8 @@ public class SQLiteDataProvider implements DataProvider {
             claim.setName(claimDataRow.getString("name"));
             claim.setEntryMessage(claimDataRow.getString("entryMessage"));
             claim.setExitMessage(claimDataRow.getString("exitMessage"));
+            claim.setTeleportLocation(claimDataRow.getString("teleportLocation"));
+            claim.setCreationDate(claimDataRow.getString("createdAt"));
 
             group.setOwner(claim);
 
@@ -494,6 +500,8 @@ public class SQLiteDataProvider implements DataProvider {
                     "    claim_data.name," +
                     "    claim_data.entryMessage," +
                     "    claim_data.exitMessage," +
+                    "    claim_data.teleportLocation," +
+                    "    claim_data.createdAt," +
                     "    subclaims.id As subClaim_id " +
                     "From" +
                     "    claim_data Inner Join" +
@@ -522,6 +530,9 @@ public class SQLiteDataProvider implements DataProvider {
                 subClaim.setName(row.getString("name"));
                 subClaim.setEntryMessage(row.getString("entryMessage"));
                 subClaim.setExitMessage(row.getString("exitMessage"));
+                subClaim.setTeleportLocation(claimDataRow.getString("teleportLocation"));
+                subClaim.setCreationDate(claimDataRow.getString("createdAt"));
+
 
                 subClaim_group.setOwner(subClaim);
 

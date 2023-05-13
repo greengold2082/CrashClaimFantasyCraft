@@ -261,7 +261,7 @@ public enum Localization {
 
     // Claim
     MENU__CLAIM__TITLE("Claim Settings"),
-    MENU__CLAIM_LIST__TITLE("Claims"),
+    MENU__CLAIM_LIST__TITLE("Claims (shift+click to teleport)"),
     MENU__SUB_CLAIM__TITLE("Sub-Claim Settings"),
     MENU__SUB_CLAIM_LIST__TITLE("Sub-Claims"),
 
@@ -274,6 +274,9 @@ public enum Localization {
 
     MENU__CLAIM__EXIT_MESSAGE__MESSAGE(Material.PAPER, 1, "Enter new claim exit message"),
     MENU__CLAIM__EXIT_MESSAGE__CONFIRMATION("<green>Change claim exit message to <gold><exit_message>"),
+
+    MENU__CLAIM__MESSAGE__TELEPORT_LOCATION__SAVED("<green>Your teleportation point has been well created. Type <aqua>/claims <green>and shift+click on your claim to teleport"),
+    MENU__CLAIM__MESSAGE__TELEPORT_LOCATION__ERROR("<red>Cannot create the teleportation point. You must be inside your claim"),
 
     // Permissions
     MENU__PERMISSIONS__BUTTONS__PER_PLAYER(Material.PLAYER_HEAD, 1,
@@ -313,6 +316,14 @@ public enum Localization {
     MENU__PERMISSIONS__BUTTONS__EDIT_EXIT_DISABLED(Material.ANVIL, 1,
             "<gray>Edit Exit Message",
             "<dark_gray>Edit the exit message of your claim"),
+
+    MENU__PERMISSIONS__BUTTONS__TELEPORT_LOCATION(Material.ENDER_PEARL, 1,
+            "<gold>Set home",
+            "<green>Click to set the home teleport point at your current location",
+            "<dark_gray><coords>"),
+    MENU__PERMISSIONS__BUTTONS__TELEPORT_LOCATION_DISABLED(Material.ENDER_PEARL, 1,
+            "<gray>Set home",
+            "<dark_gray>Click to set the home teleport point at your current location"),
 
     MENU__PERMISSIONS__BUTTONS__DELETE(Material.RED_CONCRETE, 1,
             "<gold>Delete Claim",

@@ -125,6 +125,10 @@ public class NewClaimMode implements ClaimMode {
         if (response.isStatus()) {
             ((Claim) response.getClaim()).addContribution(player.getUniqueId(), area); //Contribution tracking
 
+            if (response.getClaim().getTeleportLocation() == null) {
+                response.getClaim().setTeleportLocation(String.valueOf(player.getLocation().serialize()));
+            }
+
             player.spigot().sendMessage(Localization.NEW_CLAIM__SUCCESS.getMessage(player));
 
             VisualGroup group = visualizationManager.fetchVisualGroup(player, true);

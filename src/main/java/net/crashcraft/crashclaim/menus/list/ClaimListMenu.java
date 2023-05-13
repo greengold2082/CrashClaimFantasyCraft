@@ -1,6 +1,8 @@
 package net.crashcraft.crashclaim.menus.list;
 
 import co.aikar.taskchain.TaskChain;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import dev.whip.crashutils.menusystem.GUI;
 import io.papermc.lib.PaperLib;
 import net.crashcraft.crashclaim.CrashClaim;
@@ -23,6 +25,7 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 public class ClaimListMenu extends GUI {
     private final GUI previousMenu;
@@ -192,9 +195,23 @@ public class ClaimListMenu extends GUI {
             return;
         }
 
-        PaperLib.teleportAsync(player, new Location(world, x,
-                world.getHighestBlockYAt(x, z) + 1,
-                z));
+        Location location;
+
+        if (claim.getTeleportLocation() != null) {
+            Map<String, Object> map = new Gson().fromJson(claim.getTeleportLocation(), new TypeToken<Map<String, Object>>() {}.getType());
+
+            double x2 = (double) map.get("x");
+            double y2 = (double) map.get("y");
+            double z2 = (double) map.get("z");
+            float pitch = ((Double) map.get("pitch")).floatValue();
+            float yaw = ((Double) map.get("yaw")).floatValue();
+
+            location = new Location(world, x2, y2, z2, yaw, pitch);
+        } else {
+            location = new Location(world, x, world.getHighestBlockYAt(x, z) + 1, z);
+        }
+
+        PaperLib.teleportAsync(player, location);
     }
 
     private ArrayList<Claim> getPageFromArray() {
