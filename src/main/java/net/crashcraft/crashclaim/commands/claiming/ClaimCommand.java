@@ -21,6 +21,10 @@ import net.crashcraft.crashclaim.permissions.PermissionHelper;
 import net.crashcraft.crashclaim.permissions.PermissionRoute;
 import net.crashcraft.crashclaim.visualize.VisualizationManager;
 import net.crashcraft.crashclaim.visualize.api.VisualGroup;
+import net.luckperms.api.LuckPerms;
+import net.luckperms.api.LuckPermsProvider;
+import net.luckperms.api.cacheddata.CachedPermissionData;
+import net.luckperms.api.platform.PlayerAdapter;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -60,6 +64,20 @@ public class ClaimCommand extends BaseCommand implements Listener {
             player.sendMessage(Localization.DISABLED_WORLD.getMessage(player));
             forceCleanup(uuid, true);
             return;
+        }
+
+        // Nether Quest can claim in Nether
+        if (player.getWorld().getName().equalsIgnoreCase("world_nether") && GlobalConfig.claimNetherPermissionName != null) {
+
+            LuckPerms luckPerms = LuckPermsProvider.get();
+            PlayerAdapter<Player> adapter = luckPerms.getPlayerAdapter(Player.class);
+            CachedPermissionData permissionData = adapter.getPermissionData(player);
+
+            if (permissionData.checkPermission(GlobalConfig.claimNetherPermissionName).asBoolean() == false) {
+                player.sendMessage("§b§l" + Localization.MESSAGE__QUEST_CANT_CLAIM_NETHER.getRawMessage());
+                forceCleanup(uuid, true);
+                return;
+            }
         }
 
         if (modeMap.containsKey(uuid)) {

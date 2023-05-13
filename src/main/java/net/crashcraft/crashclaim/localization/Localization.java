@@ -486,7 +486,9 @@ public enum Localization {
         void postLoad(){
             this.setItem(new ItemStackTemplate(Utils.addItemShine(MENU__PERMISSION_OPTION__MISC.getItem(null))));
         }
-    }
+    },
+
+    MESSAGE__QUEST_CANT_CLAIM_NETHER("Tu n'es pas suffisament puissant pour claim dans le Nether. Trouve le mage Ulrohim à la cité d'Annùnimas, lui seul pourra t'aider..."),
 
     ;
 

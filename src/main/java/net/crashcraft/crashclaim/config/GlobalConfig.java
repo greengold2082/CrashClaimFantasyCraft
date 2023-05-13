@@ -129,6 +129,7 @@ public class GlobalConfig extends BaseConfig{
     public static String forcedVersionString;
     public static boolean blockPvPInsideClaims;
     public static boolean checkEntryExitWhileFlying;
+    public static String claimNetherPermissionName;
 
     private static void miscValues(){
         money_per_block = getDouble("money-per-block", 0.01);
@@ -146,6 +147,7 @@ public class GlobalConfig extends BaseConfig{
         forcedVersionString = config.getString("use-this-version-instead");
         blockPvPInsideClaims = getBoolean("block-pvp-inside-claims", false);
         checkEntryExitWhileFlying = config.getBoolean("check-entry-and-exit-while-flying", false);
+        claimNetherPermissionName = config.getString("claim-nether-permission-name", null);
     }
 
     public static boolean bypassModeBypassesMoney;
