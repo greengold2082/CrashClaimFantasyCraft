@@ -99,7 +99,7 @@ public class AdminCommand extends BaseCommand {
                         null,
                         "identifier", adapter.getIdentifier(),
                         "status", error == null ? Localization.MIGRATE__LIST__AVAILABLE.getRawMessage() : Localization.MIGRATE__LIST__DISABLED.getRawMessage(),
-                        "error", error
+                        "error", error == null ? "" : error
                 ));
             }
         }

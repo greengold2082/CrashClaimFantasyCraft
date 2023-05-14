@@ -3,6 +3,7 @@ package net.crashcraft.crashclaim.migration;
 import net.crashcraft.crashclaim.CrashClaim;
 import net.crashcraft.crashclaim.data.ClaimDataManager;
 import net.crashcraft.crashclaim.migration.adapters.GriefPreventionAdaptor;
+import net.crashcraft.crashclaim.migration.adapters.WorldGuardAdaptor;
 
 import java.util.ArrayList;
 import java.util.concurrent.CompletableFuture;
@@ -21,6 +22,7 @@ public class MigrationManager {
         this.adapters = new ArrayList<>();
 
         adapters.add(new GriefPreventionAdaptor());
+        adapters.add(new WorldGuardAdaptor());
     }
 
     public CompletableFuture<String> migrate(MigrationAdapter adapter){
