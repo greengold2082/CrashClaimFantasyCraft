@@ -120,6 +120,10 @@ public class ClaimDataManager implements Listener {
             return new ClaimResponse(false, ErrorType.TOO_SMALL);
         }
 
+        if (isTooBig(maxCorner.getBlockX(), maxCorner.getBlockZ(), minCorner.getBlockX(), minCorner.getBlockZ())){
+            return new ClaimResponse(false, ErrorType.TOO_BIG);
+        }
+
         if (checkOverLapSurroudningClaims(-1, maxCorner.getBlockX(), maxCorner.getBlockZ(), minCorner.getBlockX(), minCorner.getBlockZ(), maxCorner.getWorld().getUID())){
             return new ClaimResponse(false, ErrorType.OVERLAP_EXISTING);
         }
@@ -166,6 +170,10 @@ public class ClaimDataManager implements Listener {
 
         if (isTooSmall(newMaxX, newMaxZ, newMinX, newMinZ)){
             return ErrorType.TOO_SMALL;
+        }
+
+        if (isTooBig(newMaxX, newMaxZ, newMinX, newMinZ)){
+            return ErrorType.TOO_BIG;
         }
 
         if (arr[4] == 1) {
@@ -345,6 +353,10 @@ public class ClaimDataManager implements Listener {
 
     public boolean isTooSmall(int maxX, int maxZ, int minX, int minZ){
         return ((maxX - minX) < 4 || (maxZ - minZ) < 4);
+    }
+
+    public boolean isTooBig(int maxX, int maxZ, int minX, int minZ){
+        return (maxZ-minZ) * (maxX - minX) > 40401;
     }
 
     public boolean checkOverLapSurroudningClaims(int claimid, int maxX, int maxZ, int minX, int minZ, UUID world){

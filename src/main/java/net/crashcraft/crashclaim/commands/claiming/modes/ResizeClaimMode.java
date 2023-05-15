@@ -101,6 +101,10 @@ public class ResizeClaimMode implements ClaimMode {
                 player.spigot().sendMessage(Localization.RESIZE__MIN_SIZE.getMessage(player));
                 cleanup(uuid, true);
                 return;
+            case TOO_BIG:
+                player.spigot().sendMessage(Localization.RESIZE__MAX_SIZE.getMessage(player));
+                cleanup(uuid, true);
+                return;
             case CANNOT_FLIP_ON_RESIZE:
                 player.spigot().sendMessage(Localization.RESIZE__CANNOT_FLIP.getMessage(player));
                 cleanup(uuid, true);

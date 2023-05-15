@@ -47,8 +47,14 @@ public class NewClaimMode implements ClaimMode {
     }
 
     private boolean checkCanCreate(Location min, Location max){
-        if ((max.getBlockX() - min.getBlockX()) < 4 || (max.getBlockZ() - min.getBlockZ()) < 4) {
+
+        if (manager.isTooSmall(max.getBlockX(),  max.getBlockZ(), min.getBlockX(), min.getBlockZ())) {
             player.spigot().sendMessage(Localization.NEW_CLAIM__MIN_SIZE.getMessage(player));
+            return false;
+        }
+
+        if (manager.isTooBig(max.getBlockX(),  max.getBlockZ(), min.getBlockX(), min.getBlockZ())) {
+            player.spigot().sendMessage(Localization.NEW_CLAIM__MAX_SIZE.getMessage(player));
             return false;
         }
 
