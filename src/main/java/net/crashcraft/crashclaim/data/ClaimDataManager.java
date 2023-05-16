@@ -124,6 +124,10 @@ public class ClaimDataManager implements Listener {
             return new ClaimResponse(false, ErrorType.TOO_BIG);
         }
 
+        if (isClaimSizeRatioToSmall(maxCorner.getBlockX(), maxCorner.getBlockZ(), minCorner.getBlockX(), minCorner.getBlockZ())) {
+            return new ClaimResponse(false, ErrorType.BAD_RATIO);
+        }
+
         if (checkOverLapSurroudningClaims(-1, maxCorner.getBlockX(), maxCorner.getBlockZ(), minCorner.getBlockX(), minCorner.getBlockZ(), maxCorner.getWorld().getUID())){
             return new ClaimResponse(false, ErrorType.OVERLAP_EXISTING);
         }
@@ -175,6 +179,11 @@ public class ClaimDataManager implements Listener {
         if (isTooBig(newMaxX, newMaxZ, newMinX, newMinZ)){
             return ErrorType.TOO_BIG;
         }
+
+        if (isClaimSizeRatioToSmall(newMaxX, newMaxZ, newMinX, newMinZ)){
+            return ErrorType.BAD_RATIO;
+        }
+
 
         if (arr[4] == 1) {
             if (!CrashClaim.getPlugin().getPluginSupport().canClaim(
@@ -351,13 +360,21 @@ public class ClaimDataManager implements Listener {
         return arr;
     }
 
-    public boolean isTooSmall(int maxX, int maxZ, int minX, int minZ){
+    public boolean  isTooSmall(int maxX, int maxZ, int minX, int minZ){
         return ((maxX - minX) < 4 || (maxZ - minZ) < 4);
     }
 
     public boolean isTooBig(int maxX, int maxZ, int minX, int minZ){
         return (maxZ-minZ) * (maxX - minX) > 40401;
     }
+
+    public boolean isClaimSizeRatioToSmall(int maxX, int maxZ, int minX, int minZ){
+        int lengthX = maxX - minX;
+        int lengthZ = maxZ - minZ;
+        float ratio = (lengthX < lengthZ) ? (float) lengthX / lengthZ :  (float) lengthZ / lengthX ;
+
+        return ratio < 0.8;
+   }
 
     public boolean checkOverLapSurroudningClaims(int claimid, int maxX, int maxZ, int minX, int minZ, UUID world){
         long NWChunkX = minX >> 4;

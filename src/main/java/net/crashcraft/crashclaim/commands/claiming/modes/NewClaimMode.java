@@ -58,6 +58,11 @@ public class NewClaimMode implements ClaimMode {
             return false;
         }
 
+        if (manager.isClaimSizeRatioToSmall(max.getBlockX(),  max.getBlockZ(), min.getBlockX(), min.getBlockZ())) {
+            player.spigot().sendMessage(Localization.NEW_CLAIM__BAD_RATIO.getMessage(player));
+            return false;
+        }
+
         if (manager.checkOverLapSurroudningClaims(-1, max.getBlockX(), max.getBlockZ(), min.getBlockX(), min.getBlockZ(), min.getWorld().getUID())){
             player.spigot().sendMessage(Localization.NEW_CLAIM__OVERLAPPING.getMessage(player));
             return false;
