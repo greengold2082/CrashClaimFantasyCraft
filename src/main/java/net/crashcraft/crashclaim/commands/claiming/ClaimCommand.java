@@ -188,7 +188,7 @@ public class ClaimCommand extends BaseCommand implements Listener {
                                 return true;
                             }
 
-                            return alreadyClaimed < groupSettings.getMaxClaims();
+                            return alreadyClaimed <= groupSettings.getMaxClaims();
                         }).syncLast((canClaim) -> {
                             if (!canClaim) {
                                 player.sendMessage(Localization.MAX_CLAIMS_REACHED.getMessage(player));
