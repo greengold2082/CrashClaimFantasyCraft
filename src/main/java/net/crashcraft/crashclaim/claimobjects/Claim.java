@@ -6,10 +6,7 @@ import net.crashcraft.crashclaim.permissions.PermissionRouter;
 import org.bukkit.Location;
 import org.bukkit.Material;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.Predicate;
 
 public class Claim extends BaseClaim {
@@ -18,7 +15,7 @@ public class Claim extends BaseClaim {
     private ArrayList<SubClaim> subClaims;
     private UUID owner;
 
-    private HashMap<UUID, Integer> contribution;
+    private HashMap<UUID, Contribution> contribution;
 
     public Claim(int id, int upperCornerX, int upperCornerZ, int lowerCornerX, int lowerCornerZ, UUID world, PermissionGroup perms, UUID owner) {
         super(id, upperCornerX, upperCornerZ, lowerCornerX, lowerCornerZ, world, perms);
@@ -114,25 +111,55 @@ public class Claim extends BaseClaim {
         }
     }
 
-    public void addContribution(UUID player, int area){
-        int adder = contribution.get(player) != null ? contribution.get(player) : 0;
-        contribution.put(player, adder + area);
+    public void addContribution(UUID player, int area, double price){
+        int areaAdder = contribution.get(player) != null ? contribution.get(player).getArea() : 0;
+        double priceAdder = contribution.get(player) != null ? contribution.get(player).getPrice() : 0;
+        double newPrice = Math.round((priceAdder + price) * 100) / 100;
+        contribution.put(player, new Contribution(areaAdder + area, newPrice));
     }
 
-    public void adjustContribution(UUID player, int area){
-        int adder = (contribution.get(player) != null ? contribution.get(player) : 0) - area;
-        if (adder <= 0){
-            contribution.remove(player);
-        } else {
-            contribution.put(player, adder);
+    /**
+     *
+     * @param player
+     * @param area
+     * @return returns the price truly paid by the player corresponding to the area deducted
+     */
+    public double deductContribution(UUID player, int area) {
+        int contributedArea = contribution.get(player).getArea();
+        double contributedPrice = contribution.get(player).getPrice();
+        double deductedPrice = 0;
+        double newPrice = 0;
+
+        if (area >= contributedArea) {
+            removeContribution(player);
+            return contributedPrice;
         }
+
+        deductedPrice = (double) (area * contributedPrice) / contributedArea;
+        newPrice = Math.round((contributedPrice - deductedPrice) * 100) / 100;
+        contribution.put(player, new Contribution(contributedArea - area, newPrice));
+
+        return deductedPrice;
     }
 
-    public int getContriubtion(UUID player){
+    public void removeContribution(UUID player) {
+        contribution.remove(player);
+    }
+
+    public int getContributionTotalArea() {
+        int adderArea = 0;
+
+        for (Map.Entry<UUID, Contribution> entry : contribution.entrySet()) {
+            adderArea += entry.getValue().getArea();
+        }
+        return adderArea;
+    }
+
+    public Contribution getContribution(UUID player){
         return contribution.get(player);
     }
 
-    public HashMap<UUID, Integer> getContribution(){
+    public HashMap<UUID, Contribution> getContribution(){
         return contribution;
     }
 
@@ -176,7 +203,7 @@ public class Claim extends BaseClaim {
         this.subClaims = subClaims;
     }
 
-    public void setContribution(HashMap<UUID, Integer> contribution) {
+    public void setContribution(HashMap<UUID, Contribution> contribution) {
         this.contribution = contribution;
     }
 

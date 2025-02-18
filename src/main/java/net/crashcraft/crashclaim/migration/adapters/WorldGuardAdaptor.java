@@ -11,6 +11,7 @@ import net.crashcraft.crashclaim.CrashClaim;
 import net.crashcraft.crashclaim.claimobjects.PermState;
 import net.crashcraft.crashclaim.claimobjects.permission.PlayerPermissionSet;
 import net.crashcraft.crashclaim.data.ClaimResponse;
+import net.crashcraft.crashclaim.data.ContributionManager;
 import net.crashcraft.crashclaim.migration.MigrationAdapter;
 import net.crashcraft.crashclaim.migration.MigrationManager;
 import org.bukkit.Bukkit;
@@ -127,14 +128,21 @@ public class WorldGuardAdaptor implements MigrationAdapter {
                 for (UUID uuid : claim.getOwners().getUniqueIds()) {
                     ownerUUID = uuid;
                 }
-                ClaimResponse claimResponse = manager.getManager().createClaim(locationGreaterBoundaryCorner, locationLesserBoundaryCorner, ownerUUID);
 
+                int area = ContributionManager.getArea(claim.getMinimumPoint().getBlockX(), claim.getMinimumPoint().getBlockZ(), claim.getMaximumPoint().getBlockX(), claim.getMaximumPoint().getBlockZ());
+                double price;
+                try {
+                    price = manager.getManager().calculatePrice(area, worldName);
+                } catch (Exception e) {
+                    price = 0;
+                }
+
+                ClaimResponse claimResponse = manager.getManager().createClaim(locationGreaterBoundaryCorner, locationLesserBoundaryCorner, ownerUUID, price);
 
                 if (!claimResponse.isStatus()){
                     logger.severe("A claim has failed to be created due to [" + claimResponse.getError().name() + "] | " + claim.getId());
                     continue;
                 }
-
 
                 // claim messages / name
                 Flag<String> flagGreetingMessageChat = Flags.GREET_MESSAGE;

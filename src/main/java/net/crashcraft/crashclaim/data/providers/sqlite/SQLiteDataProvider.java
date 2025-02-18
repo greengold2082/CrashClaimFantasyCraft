@@ -8,10 +8,7 @@ import co.aikar.idb.PooledDatabaseOptions;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import net.crashcraft.crashclaim.CrashClaim;
-import net.crashcraft.crashclaim.claimobjects.Claim;
-import net.crashcraft.crashclaim.claimobjects.PermState;
-import net.crashcraft.crashclaim.claimobjects.PermissionGroup;
-import net.crashcraft.crashclaim.claimobjects.SubClaim;
+import net.crashcraft.crashclaim.claimobjects.*;
 import net.crashcraft.crashclaim.claimobjects.permission.GlobalPermissionSet;
 import net.crashcraft.crashclaim.claimobjects.permission.PlayerPermissionSet;
 import net.crashcraft.crashclaim.claimobjects.permission.child.SubPermissionGroup;
@@ -289,9 +286,11 @@ public class SQLiteDataProvider implements DataProvider {
             }
 
             //Contributions
-            for (Map.Entry<UUID, Integer> entry : claim.getContribution().entrySet()) {
-                DB.executeUpdate("INSERT INTO contributions(data_id, players_id, amount) VALUES (?, (SELECT id FROM players WHERE uuid = ?), ?) ON CONFLICT (data_id, players_id) DO UPDATE SET amount = ?",
-                        claimData_id, entry.getKey().toString(), entry.getValue(), entry.getValue());
+            for (Map.Entry<UUID, Contribution> entry : claim.getContribution().entrySet()) {
+                DB.executeUpdate("INSERT INTO contributions(data_id, players_id, amount, price) " +
+                                        "VALUES (?, (SELECT id FROM players WHERE uuid = ?), ?, ?) " +
+                                        "ON CONFLICT (data_id, players_id) DO UPDATE SET amount = ?, price = ?",
+                        claimData_id, entry.getKey().toString(), entry.getValue().getArea(),  entry.getValue().getPrice(), entry.getValue().getArea(), entry.getValue().getPrice());
             }
         } catch (SQLException e){
             e.printStackTrace();
@@ -481,6 +480,7 @@ public class SQLiteDataProvider implements DataProvider {
             //Contributions
             for (DbRow row : DB.getResults("Select" +
                     "    contributions.amount," +
+                    "    contributions.price," +
                     "    players.uuid " +
                     "From" +
                     "    contributions Inner Join" +
@@ -488,7 +488,8 @@ public class SQLiteDataProvider implements DataProvider {
                     "Where" +
                     "    contributions.data_id = ?", data_id)){
                 claim.addContribution(UUID.fromString(row.getString("uuid")),
-                        row.getInt("amount"));
+                        row.getInt("amount"),
+                        row.getDbl("price"));
             }
 
             for (DbRow row : DB.getResults("Select" +

@@ -88,9 +88,17 @@ public class NewClaimMode implements ClaimMode {
 
         int area = ContributionManager.getArea(min.getBlockX(), min.getBlockZ(), max.getBlockX(), max.getBlockZ());
 
-        int price = (GlobalConfig.bypassModeBypassesMoney && PermissionHelper.getPermissionHelper().getBypassManager().isBypass(player.getUniqueId())) ?
-                0 : (int) Math.ceil(area * GlobalConfig.money_per_block);
-        String priceString = Integer.toString(price);
+        double price;
+        try {
+            price = (GlobalConfig.bypassModeBypassesMoney && PermissionHelper.getPermissionHelper().getBypassManager().isBypass(player.getUniqueId())) ?
+                    0 : manager.calculatePrice(area, min.getWorld().getName());
+        } catch (Exception e) {
+            return;
+            //TODO afficher message erreur
+        }
+
+
+        String priceString = Double.toString(price);
 
         if (price > 0){
             new ConfirmationMenu(player,
@@ -116,7 +124,7 @@ public class NewClaimMode implements ClaimMode {
                                     return;
                                 }
 
-                                Bukkit.getScheduler().runTask(CrashClaim.getPlugin(), () -> afterTransaction(min, max, area, player.getUniqueId()));
+                                Bukkit.getScheduler().runTask(CrashClaim.getPlugin(), () -> afterTransaction(min, max, area, player.getUniqueId(), price));
                             });
                         }
                         return "";
@@ -126,15 +134,14 @@ public class NewClaimMode implements ClaimMode {
                         return "";
                     }).open();
         } else {
-            afterTransaction(min, max, 0, player.getUniqueId()); // set area to 0 to not add any money into economy
+            afterTransaction(min, max, area, player.getUniqueId(), 0); // set price to 0 to not add any money into economy
         }
     }
 
-    private void afterTransaction(Location min, Location max, int area, UUID target){
-        ClaimResponse response = manager.createClaim(max, min, player.getUniqueId());
+    private void afterTransaction(Location min, Location max, int area, UUID target, double price){
+        ClaimResponse response = manager.createClaim(max, min, player.getUniqueId(), price);
 
         if (response.isStatus()) {
-            ((Claim) response.getClaim()).addContribution(player.getUniqueId(), area); //Contribution tracking
 
             if (response.getClaim().getTeleportLocation() == null) {
                 response.getClaim().setTeleportLocation(String.valueOf(player.getLocation().serialize()));

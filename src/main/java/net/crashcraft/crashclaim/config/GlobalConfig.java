@@ -46,6 +46,58 @@ public class GlobalConfig extends BaseConfig{
         }
     }
 
+    public static boolean use_money_per_world_per_blocks_ranges;
+    public static HashMap<String, TreeMap<Integer, Double>> money_per_world_per_blocks_ranges;
+
+    //TODO test si worlds existent avec bukkit, try catch, ajouter la config dans le fichier config ressource du plugin
+
+    // Processing config : world: 100:10;625:0.8;2550:0.5;10000:0.1;22500:0.06
+    private static void moneyPerWorldPerBlocksRanges() {
+
+        final String baseKey = "money-per-world-per-blocks-ranges";
+        use_money_per_world_per_blocks_ranges = getBoolean(baseKey + ".use", false);
+        money_per_world_per_blocks_ranges = new HashMap<>();
+
+        if (! use_money_per_world_per_blocks_ranges) return;
+
+        ConfigurationSection worldsSection = config.getConfigurationSection(baseKey + ".worlds");
+        Set<String> worldsKeys;
+        if (worldsSection == null) {
+            use_money_per_world_per_blocks_ranges = false;
+            logError("Error in config.yml, expected worlds not found. Turn off money_per_world_per_blocks_ranges");
+            return;
+        } else {
+            worldsKeys = worldsSection.getKeys(false);
+        }
+
+
+        for (String worldName : worldsKeys){
+            String worldData = getString(baseKey + ".worlds." + worldName, null);
+            if (worldData == null) {
+                use_money_per_world_per_blocks_ranges = false;
+                logError("Error in config.yml, invalid value in key : " + worldName + ". Turn off money_per_world_per_blocks_ranges");
+                return;
+            }
+
+            TreeMap<Integer, Double> rangesMap = new TreeMap<Integer, Double>();
+            String[] arrRanges = worldData.split(";");
+
+            for (String range : arrRanges) {
+                String[] arrRange = range.split(":");
+                rangesMap.put( Integer.valueOf(arrRange[0]), Double.valueOf(arrRange[1]));
+            }
+            money_per_world_per_blocks_ranges.put(worldName, rangesMap);
+        }
+    }
+
+    /*try {
+        for (int x = 0; x < arr.length; x++) {
+            arr[x] = Integer.valueOf(value[x]);
+        }
+    } catch (NumberFormatException e) {
+        logError("Invalid number format for, " + path);
+    }*/
+
     public static String visual_type;
     public static boolean visual_use_highest_block;
     public static HashMap<UUID, Material> visual_menu_items;

@@ -151,6 +151,8 @@ public enum Localization {
     ),
     CLAIM_INFO__CONTAINER_MESSAGE("<green><name> <yellow>: <status>"),
     CLAIM_INFO__NO_CLAIM("<red>There is no claim where you are standing."),
+    CLAIM_INFO__PRICE_PER_BLOCK("<green>Price per block : <price>"),
+    CLAIM_INFO__PRICE_PER_WORLD_RANGES("<green>Prices per block for <bold><world><reset> : <prices>"),
 
     NEW_CLAIM__INFO("<yellow>Click two corners to form a new claim. To resize an existing claim click a corner or side to resize in that direction."),
     NEW_CLAIM__CLICK_CORNER("<green>Click an opposite corner to form a new claim."),
@@ -491,6 +493,15 @@ public enum Localization {
             this.setItem(new ItemStackTemplate(Utils.addItemShine(MENU__PERMISSION_OPTION__MISC.getItem(null))));
         }
     },
+
+    COMMAND__CONTRIBUTION__NO_CLAIM("<red>There is no claim where you are standing."),
+    COMMAND__CONTRIBUTION__SHOW_CONTRIBUTION("<yellow><contribution>"),
+    COMMAND__CONTRIBUTION__UNKNOWN_PLAYER("Unknown player"),
+
+    RAW_TRANSLATION__CURRENCY_SYMBOL("CO"),
+    RAW_TRANSLATION__COMMAND_CLAIM_PRICE__1("<gray>Up to<yellow>"),
+    RAW_TRANSLATION__COMMAND_CLAIM_PRICE__2("blocks"),
+    RAW_TRANSLATION__COMMAND_CLAIM_PRICE__3(" <white>|<yellow> "),
 
     MESSAGE__QUEST_CANT_CLAIM_NETHER("Tu n'es pas suffisament puissant pour claim dans le Nether. Trouve le mage Ulrohim à la cité d'Annùnimas, lui seul pourra t'aider..."),
 

@@ -16,10 +16,8 @@ import org.bukkit.Material;
 import org.bukkit.scheduler.BukkitTask;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Logger;
 
 public class GriefPreventionAdaptor implements MigrationAdapter {
@@ -71,7 +69,15 @@ public class GriefPreventionAdaptor implements MigrationAdapter {
                     continue;
                 }
 
-                ClaimResponse claimResponse = manager.getManager().createClaim(claim.getGreaterBoundaryCorner(), claim.getLesserBoundaryCorner(), claim.getOwnerID());
+                //TODO the line below which defines the price has never been tested !
+                double price;
+                try {
+                    price = manager.getManager().calculatePrice(claim.getArea(), claim.getGreaterBoundaryCorner().getWorld().getName());
+                } catch (Exception e) {
+                    price = 0;
+                }
+
+                ClaimResponse claimResponse = manager.getManager().createClaim(claim.getGreaterBoundaryCorner(), claim.getLesserBoundaryCorner(), claim.getOwnerID(), price);
 
                 if (!claimResponse.isStatus()){
                     logger.warning("A claim has failed to be created due to [" + claimResponse.getError().name() + "] : {Owner: " + claim.getOwnerName() + "}");

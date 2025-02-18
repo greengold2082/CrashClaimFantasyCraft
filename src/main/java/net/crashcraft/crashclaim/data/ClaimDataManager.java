@@ -34,9 +34,7 @@ import org.cache2k.CacheEntry;
 import org.cache2k.IntCache;
 
 import java.util.*;
-import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.logging.Logger;
@@ -111,7 +109,7 @@ public class ClaimDataManager implements Listener {
         return idCounter.getAndIncrement();
     }
 
-    public ClaimResponse createClaim(Location maxCorner, Location minCorner, UUID owner){
+    public ClaimResponse createClaim(Location maxCorner, Location minCorner, UUID owner, double price){
         if (maxCorner == null || minCorner == null || maxCorner.getWorld() == null){
             return new ClaimResponse(false, ErrorType.CLAIM_LOCATIONS_WERE_NULL);
         }
@@ -147,7 +145,7 @@ public class ClaimDataManager implements Listener {
 
         claim.getPerms().setOwner(claim);
 
-        claim.addContribution(owner, ContributionManager.getArea(claim.getMinX(), claim.getMinZ(), claim.getMaxX(), claim.getMaxZ())); //Contribution tracking initial put
+        claim.addContribution(owner, ContributionManager.getArea(claim.getMinX(), claim.getMinZ(), claim.getMaxX(), claim.getMaxZ()), price); //Contribution tracking initial put
 
         return addClaim(claim) ? new ClaimResponse(true, claim) : new ClaimResponse(false, ErrorType.FILESYSTEM_OR_MEMORY_ERROR);
     }
@@ -198,8 +196,16 @@ public class ClaimDataManager implements Listener {
             int difference = area - originalArea;
 
             if (difference > 0) {
-                int price = (int) Math.ceil(difference * GlobalConfig.money_per_block);
-                String priceString = Integer.toString(price);
+                double price;
+                try {
+                    price = calculatePrice(difference, Bukkit.getWorld(claim.getWorld()).getName());
+                } catch (Exception e) {
+                    //e.printStackTrace();
+                    //TODO afficher erreur ??
+                    return ErrorType.GENERIC;
+                }
+                Bukkit.getLogger().warning("resizeClaim() après le try catch calculatePrice()");
+                String priceString = Double.toString(price);
                 //Check price with player
                 new ConfirmationMenu(resizer,
                         Localization.RESIZE__MENU__CONFIRMATION__TITLE.getMessage(resizer),
@@ -214,7 +220,7 @@ public class ClaimDataManager implements Listener {
                                 if (PermissionHelper.getPermissionHelper().hasPermission(claim, player.getUniqueId(), PermissionRoute.MODIFY_CLAIM)) {
                                     CrashClaim.getPlugin().getPayment().makeTransaction(resizer.getUniqueId(), TransactionType.WITHDRAW, "Claim Resize Up", price, (response) -> {
                                         if (response.getTransactionStatus() == TransactionResponse.SUCCESS) {
-                                            ContributionManager.addContribution(claim, newMinX, newMinZ, newMaxX, newMaxZ, resizer.getUniqueId());  // Contribution tracking
+                                            ContributionManager.addContribution(claim, newMinX, newMinZ, newMaxX, newMaxZ, resizer.getUniqueId(), price);  // Contribution tracking
                                             resizeClaimCall(claim, newMinX, newMinZ, newMaxX, newMaxZ);
 
                                             consumer.accept(true);
@@ -236,7 +242,7 @@ public class ClaimDataManager implements Listener {
                         ).open();
             } else {
                 //Need to issue a refund
-                ContributionManager.addContribution(claim, newMinX, newMinZ, newMaxX, newMaxZ, resizer.getUniqueId());  // Contribution tracking
+                ContributionManager.addContribution(claim, newMinX, newMinZ, newMaxX, newMaxZ, resizer.getUniqueId(), 0);  // Contribution tracking
                 resizeClaimCall(claim, newMinX, newMinZ, newMaxX, newMaxZ);
                 consumer.accept(true);
             }
@@ -750,5 +756,36 @@ public class ClaimDataManager implements Listener {
 
     public IntCache<Claim> getClaimCache() {
         return claimLookup;
+    }
+
+    public double calculatePrice(int area, String worldName) throws Exception {
+
+        if (GlobalConfig.use_money_per_world_per_blocks_ranges  &&
+                GlobalConfig.money_per_world_per_blocks_ranges.containsKey(worldName)) {
+
+            int configArea = 0;
+            double configPrice = -1;
+
+            TreeMap<Integer, Double> ranges = GlobalConfig.money_per_world_per_blocks_ranges.get(worldName);
+            for (Map.Entry<Integer, Double> entry : ranges.entrySet()) {
+
+                configArea = entry.getKey();
+                if (area <= configArea) {
+
+                    configPrice = entry.getValue();
+                    break;
+                }
+            }
+
+            if (configPrice == -1) { //price not found
+                throw new Exception("Method calculatePrice : Price for " + area + " blocks is out of range in money_per_world_per_blocks_ranges config.yml option");
+            }
+            logger.warning("taille : " + configArea + " prix : " + configPrice);
+            return area * configPrice;
+
+
+        } else {
+            return area * GlobalConfig.money_per_block;
+        }
     }
 }

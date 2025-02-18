@@ -2,6 +2,7 @@ package net.crashcraft.crashclaim.data.providers.sqlite.versions;
 
 import co.aikar.idb.DB;
 import co.aikar.idb.DbRow;
+import net.crashcraft.crashclaim.config.GlobalConfig;
 import net.crashcraft.crashclaim.data.providers.sqlite.DataType;
 import net.crashcraft.crashclaim.data.providers.sqlite.DataVersion;
 
@@ -35,6 +36,13 @@ public class DataRev5 implements DataVersion {
                     "\tWHERE id = NEW.id;\n" +
                 "\tEND;"
         );
+
+        // add field contribution price + initialization
+        DB.executeUpdate("ALTER TABLE \"contributions\"" +
+                "ADD COLUMN \"price\" REAL NOT NULL DEFAULT 0"
+        );
+        double moneyPerBlock = GlobalConfig.money_per_block;
+        DB.executeUpdate("UPDATE contributions SET price = amount * " + moneyPerBlock + " WHERE 1;");
 
 
 
